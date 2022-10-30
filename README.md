@@ -36,3 +36,8 @@ profile = Profile(nickname='baobab', person=Person(name='John', surname='Smith')
 user = User.map_from_model(profile)
 print(user.dict())  # {'nickname': 'baobab', 'first_name': 'John', 'surname': 'Smith', 'full_name': 'John Smith'}
 ```
+### Installation
+using Poetry:
+```
+poetry add pymapme
+```
