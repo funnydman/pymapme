@@ -1,0 +1,33 @@
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "pymapme"
+version = "0.0.1"
+description = "functionality for mapping one model into another"
+readme = "README.md"
+authors = ["funnydman"]
+
+packages = [
+  { include = "pymapme", from = "src" }
+]
+
+[tool.poetry.build]
+generate-setup-file = false
+
+[tool.pytest.ini_options]
+pythonpath = [
+  ".", "src",
+]
+testpaths = 'tests'
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pydantic = "^1.10.2"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.982"
+pytest = "^7.1.3"
+pytest-cov = "^4.0.0"
+
