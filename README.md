@@ -9,7 +9,7 @@ Supported functionality:
 
 ### Getting started
 
-```
+```python
 from typing import Any
 
 from pydantic import BaseModel, Field
