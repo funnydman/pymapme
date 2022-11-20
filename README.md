@@ -55,13 +55,13 @@ print(user.dict())
 Run tests:
 
 ```
-make run-tests
+make run-unit-tests
 ```
 
 Run static analysis:
 
 ```
-make run-mypy
+make run-static-analysis
 ```
 
 Build package:

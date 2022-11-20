@@ -5,7 +5,6 @@ from typing import Any, Optional, List
 
 import pytest
 from pydantic import Field, BaseModel
-
 from pymapme.exceptions import PyMapMelValidationError
 from pymapme.models.mapping import MappingModel
 
@@ -74,6 +73,8 @@ class DummyMappingModel(MappingModel):
 
     @staticmethod
     def _get_age(model: DummyModel, default: Any, age: int = None) -> Optional[int]:
+        del model
+        del default
         return age
 
     @staticmethod
@@ -173,4 +174,3 @@ class TestMappingModelFromModel:
                                       '"current_work_started_since": "10-10-2022", "non_existing": null, ' \
                                       '"age": null, "full_name": "John Smith", ' \
                                       '"skills": [{"name": "Python"}, {"name": "Js"}]}'
-
