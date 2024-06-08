@@ -25,7 +25,7 @@ lint:   ## Run linters
 	pylint pymapme/ tests/
 	mypy --show-error-codes pymapme/ tests/
 
-build-package:
+build:
 	source venv/bin/activate \
 	&& poetry export -f requirements.txt | python -m pip wheel --no-deps --wheel-dir=./wheels -r /dev/stdin \
 	&& poetry build

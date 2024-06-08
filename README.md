@@ -55,19 +55,19 @@ print(user.dict())
 Run tests:
 
 ```
-make run-unit-tests
+make tests
 ```
 
 Run static analysis:
 
 ```
-make run-static-analysis
+make lint
 ```
 
 Build package:
 
 ```
-make build-package
+make build
 ```
 
 ### Installation
