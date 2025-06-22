@@ -161,7 +161,10 @@ class TestMappingModelFromModel:
 
     def test_dump(self, mapped_model):
         expected_json = mapped_model.model_dump_json()
-        assert expected_json == '{"name":"John","surname":"Smith","nickname":"baobab","is_working":false,"documents":null,"previous_companies":["Google","Amazon"],"field_with_default_value":"default_value","current_work_started_since":"10-10-2022","non_existing":null,"age":null,"full_name":"John Smith","skills":[{"name":"Python"},{"name":"Js"}]}'
+        assert (
+            expected_json
+            == '{"name":"John","surname":"Smith","nickname":"baobab","is_working":false,"documents":null,"previous_companies":["Google","Amazon"],"field_with_default_value":"default_value","current_work_started_since":"10-10-2022","non_existing":null,"age":null,"full_name":"John Smith","skills":[{"name":"Python"},{"name":"Js"}]}'
+        )
 
     def test_non_callable_source_func(self):
         class TestModel(BaseModel):

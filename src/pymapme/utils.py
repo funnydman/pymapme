@@ -58,9 +58,8 @@ def map_from_model_field(
     sep: str | None = ".",
     default: Any | None = None,
 ) -> Any:
-    value = reduce(
+    return reduce(
         lambda val, key: getattr(val, key, default) if isinstance(val, object) else default,
         source_path.split(sep),
         source_model,
     )
-    return value
