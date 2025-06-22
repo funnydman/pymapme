@@ -27,11 +27,11 @@ class Profile(BaseModel):
 
 
 class User(MappingModel):
-    nickname: str = Field(source='nickname')
-    first_name: str = Field(source='person.name')
-    surname: str = Field(source='person.surname')
-    full_name: str = Field(source_func='_get_full_name')
-    age: int = Field(source_func='_get_age_from_context')
+    nickname: str = Field(json_schema_extra={'source': 'nickname'})
+    first_name: str = Field(json_schema_extra={'source': 'person.name'})
+    surname: str = Field(json_schema_extra={'source': 'person.surname'})
+    full_name: str = Field(json_schema_extra={'source_func': '_get_full_name'})
+    age: int = Field(json_schema_extra={'source_func': '_get_age_from_context'})
 
     @staticmethod
     def _get_full_name(model: Profile, default: Any):

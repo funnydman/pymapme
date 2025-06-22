@@ -17,6 +17,9 @@ run-static-analysis:
 
 
 build-package:
-	source venv/bin/activate \
+	poetry shell \
 	&& poetry export -f requirements.txt | python -m pip wheel --no-deps --wheel-dir=./wheels -r /dev/stdin \
 	&& poetry build
+
+publish-package:
+	poetry publish

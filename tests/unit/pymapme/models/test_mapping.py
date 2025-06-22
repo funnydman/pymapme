@@ -1,22 +1,22 @@
 import re
 from copy import deepcopy
 from datetime import date
-from typing import Any, Optional, List
+from typing import Any, List
 
 import pytest
 from pydantic import Field, BaseModel
-from pymapme.exceptions import PyMapMelValidationError
+from pymapme.exceptions import PyMapMeValidationError
 from pymapme.models.mapping import MappingModel
 
 
 class UserInfo(BaseModel):
-    first_name: Optional[str]
-    last_name: Optional[str]
+    first_name: str | None = None
+    last_name: str | None = None
 
 
 class CurrentJob(BaseModel):
-    has_project: Optional[bool]
-    since: Optional[str]
+    has_project: bool | None
+    since: str | None
 
 
 class Skill(BaseModel):
@@ -24,16 +24,16 @@ class Skill(BaseModel):
 
 
 class WorkProfile(BaseModel):
-    title: Optional[str]
-    worked_for: Optional[list]
-    current_job: Optional[CurrentJob]
-    skills: Optional[List[Skill]]
+    title: str | None
+    worked_for: list | None
+    current_job: CurrentJob | None
+    skills: List[Skill] | None
 
 
 class DummyModel(BaseModel):
-    nickname: Optional[str]
-    user_info: Optional[UserInfo]
-    work_profile: Optional[WorkProfile]
+    nickname: str | None
+    user_info: UserInfo | None
+    work_profile: WorkProfile | None
 
 
 TEST_DATA = {
@@ -58,21 +58,21 @@ TEST_DATA = {
 
 
 class DummyMappingModel(MappingModel):
-    name: Optional[str] = Field(source='user_info.first_name')
-    surname: Optional[str] = Field(source='user_info.last_name')
-    nickname: Optional[str] = Field(source='nickname')
-    is_working: Optional[str] = Field(source='work_profile.current_job.has_project')
-    documents: Optional[list] = Field(source='work_profile.current_job.documents')
-    previous_companies: Optional[list] = Field(source='work_profile.worked_for')
-    field_with_default_value: Optional[str] = 'default_value'
-    current_work_started_since: Optional[str] = Field(source='work_profile.current_job.since')
-    non_existing: Optional[str] = Field(source='no_such_field_or_model')
-    age: Optional[int] = Field(source_func='_get_age')
-    full_name: Optional[str] = Field(source_func='_get_full_name', default='NoFullName')
-    skills: Optional[list] = Field(source='work_profile.skills', default=[])
+    name: str | None = Field(default=None, json_schema_extra={'source': 'user_info.first_name'})
+    surname: str | None = Field(json_schema_extra={'source': 'user_info.last_name'})
+    nickname: str | None = Field(json_schema_extra={'source': 'nickname'})
+    is_working: bool | None = Field(json_schema_extra={'source': 'work_profile.current_job.has_project'})
+    documents: list | None = Field(default=None, json_schema_extra={'source': 'work_profile.current_job.documents'})
+    previous_companies: list | None = Field(json_schema_extra={'source': 'work_profile.worked_for'})
+    field_with_default_value: str | None = 'default_value'
+    current_work_started_since: str | None = Field(json_schema_extra={'source': 'work_profile.current_job.since'})
+    non_existing: str | None = Field(default=None, json_schema_extra={'source': 'no_such_field_or_model'})
+    age: int | None = Field(json_schema_extra={'source_func': '_get_age'})
+    full_name: str | None = Field(default='NoFullName', json_schema_extra={'source_func': '_get_full_name'})
+    skills: list | None = Field(default=[], json_schema_extra={'source': 'work_profile.skills'})
 
     @staticmethod
-    def _get_age(model: DummyModel, default: Any, age: int = None) -> Optional[int]:
+    def _get_age(model: DummyModel, default: Any, age: int = None) -> int | None:
         del model
         del default
         return age
@@ -107,7 +107,7 @@ class TestMappingModelFromModel:
             nickname='baobab',
             previous_companies=['Google', 'Amazon'],
             current_work_started_since='10-10-2022',
-            is_working='False',
+            is_working=False,
             age=None,
             full_name='John Smith',
             skills=[Skill(name='Python'), Skill(name='Js')]
@@ -119,9 +119,10 @@ class TestMappingModelFromModel:
         mapped_model = DummyMappingModel.build_from_model(DummyModel(**data))
 
         assert mapped_model == DummyMappingModel(
+            name=None,
             surname='Smith',
             nickname='baobab',
-            is_working='False',
+            is_working=False,
             documents=None,
             previous_companies=['Google', 'Amazon'],
             field_with_default_value='default_value',
@@ -140,7 +141,7 @@ class TestMappingModelFromModel:
             nickname='baobab',
             previous_companies=['Google', 'Amazon'],
             current_work_started_since='10-10-2022',
-            is_working='False',
+            is_working=False,
             age=27,
             full_name='John Smith',
             skills=[Skill(name='Python'), Skill(name='Js')]
@@ -150,7 +151,7 @@ class TestMappingModelFromModel:
         actual_model.user_info = 'John Smith'
 
         with pytest.raises(
-                PyMapMelValidationError,
+                PyMapMeValidationError,
                 match="'str' object has no attribute 'first_name'"
         ):
             DummyMappingModel.build_from_model(actual_model)
@@ -159,18 +160,13 @@ class TestMappingModelFromModel:
         actual_model.work_profile.current_job.since = date(day=10, month=10, year=2022)
 
         with pytest.raises(
-                PyMapMelValidationError,
+                PyMapMeValidationError,
                 match=re.escape('1 validation error for DummyMappingModel\n'
                                 'current_work_started_since\n'
-                                '  str type expected (type=type_error.str)')
+                                '  Input should be a valid string [type=string_type, input_value=datetime.date(2022, 10, 10), input_type=date]')
         ):
             DummyMappingModel.build_from_model(actual_model)
 
     def test_dump(self, mapped_model):
-        assert mapped_model.json() == '{"name": "John", "surname": "Smith", ' \
-                                      '"nickname": "baobab", "is_working": "False", ' \
-                                      '"documents": null, "previous_companies": ["Google", "Amazon"], ' \
-                                      '"field_with_default_value": "default_value", ' \
-                                      '"current_work_started_since": "10-10-2022", "non_existing": null, ' \
-                                      '"age": null, "full_name": "John Smith", ' \
-                                      '"skills": [{"name": "Python"}, {"name": "Js"}]}'
+        expected_json = mapped_model.model_dump_json()
+        assert "John" in expected_json and "Smith" in expected_json

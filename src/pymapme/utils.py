@@ -1,6 +1,6 @@
 import inspect
 from functools import reduce
-from typing import Type, Optional, Any
+from typing import Type, Any
 
 from pydantic import BaseModel
 
@@ -12,15 +12,15 @@ def map_fields_from_model(
 ) -> dict:
     _default = object()
     model_data = {}
-    for name, field in destination_model_type.__fields__.items():
-        if source_path := field.field_info.extra.get('source'):
+    for name, field in destination_model_type.model_fields.items():
+        if source_path := field.json_schema_extra and field.json_schema_extra.get('source'):
             value = map_from_model_field(
                 source_model=source_model,
                 source_path=source_path,
-                sep=field.field_info.extra.get('source_sep', '.'),
+                sep=field.json_schema_extra.get('source_sep', '.') if field.json_schema_extra else '.',
                 default=_default,
             )
-        elif source_func := field.field_info.extra.get('source_func'):
+        elif source_func := field.json_schema_extra and field.json_schema_extra.get('source_func'):
             if isinstance(source_func, str):
                 source_func = getattr(destination_model_type, source_func)
 
@@ -47,8 +47,8 @@ def map_fields_from_model(
 def map_from_model_field(
         source_model: object,
         source_path: str,
-        sep: Optional[str] = '.',
-        default: Optional[Any] = None,
+        sep: str | None = '.',
+        default: Any | None = None,
 ) -> Any:
     value = reduce(
         lambda val, key: getattr(val, key, default) if isinstance(val, object) else default,
