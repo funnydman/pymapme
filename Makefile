@@ -22,9 +22,8 @@ format:
 
 
 build-package:
-	poetry shell \
-	&& poetry export -f requirements.txt | python -m pip wheel --no-deps --wheel-dir=./wheels -r /dev/stdin \
-	&& poetry build
+	rm -rf dist/
+	poetry build
 
 publish-package:
 	poetry publish

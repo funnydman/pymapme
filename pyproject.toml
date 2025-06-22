@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "pymapme"
-version = "0.1.0"
+version = "1.0.0"
 description = "Transform Pydantic models from one structure to another with declarative field mapping."
 readme = "README.md"
 authors = ["funnydman"]
@@ -13,7 +13,7 @@ homepage = "https://github.com/funnydman/pymapme"
 repository = "https://github.com/funnydman/pymapme"
 keywords = ["pydantic", "mapping", "transformation", "data", "model"]
 classifiers = [
-    "Development Status :: 1 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: OS Independent",
