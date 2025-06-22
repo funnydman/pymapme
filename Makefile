@@ -12,8 +12,13 @@ run-unit-tests:
 
 
 run-static-analysis:
-	pylint ${SOURCE_DIR} ${UNIT_TEST_FOLDER}
+	ruff check ${SOURCE_DIR} ${UNIT_TEST_FOLDER}
+	ruff format --check ${SOURCE_DIR} ${UNIT_TEST_FOLDER}
 	mypy --show-error-codes ${SOURCE_DIR} ${UNIT_TEST_FOLDER}
+
+format:
+	ruff format ${SOURCE_DIR} ${UNIT_TEST_FOLDER}
+	ruff check --fix ${SOURCE_DIR} ${UNIT_TEST_FOLDER}
 
 
 build-package:
