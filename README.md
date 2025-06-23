@@ -31,7 +31,56 @@ All while maintaining Pydantic's validation and type safety.
 
 ## 🚀 Quick Start
 
-Map data from a source Pydantic model to a target model with a different structure, using simple field declarations:
+Map data from a source Pydantic model to a target model with a different structure, using simple field declarations.
+
+### Common Use Case: Third-Party API Integration
+Convert camelCase third-party API responses with nested structures to snake_case Python models:
+
+```python
+from pydantic import BaseModel, Field
+from pymapme.models.mapping import MappingModel
+
+# Third-party API response models (camelCase with nesting)
+class ThirdPartyAddress(BaseModel):
+    streetName: str
+    cityName: str
+    zipCode: str
+
+class ThirdPartyUserProfile(BaseModel):
+    firstName: str
+    lastName: str
+    userEmail: str
+    homeAddress: ThirdPartyAddress
+    isActive: bool
+
+# Your application's Python model (snake_case, flattened)
+class User(MappingModel):
+    first_name: str = Field(json_schema_extra={"source": "firstName"})
+    last_name: str = Field(json_schema_extra={"source": "lastName"})
+    email: str = Field(json_schema_extra={"source": "userEmail"})
+    street: str = Field(json_schema_extra={"source": "homeAddress.streetName"})
+    city: str = Field(json_schema_extra={"source": "homeAddress.cityName"})
+    zip_code: str = Field(json_schema_extra={"source": "homeAddress.zipCode"})
+    is_active: bool = Field(json_schema_extra={"source": "isActive"})
+
+# Transform third-party API response to your application model
+third_party_data = ThirdPartyUserProfile(
+    firstName="John", 
+    lastName="Doe", 
+    userEmail="john@example.com",
+    homeAddress=ThirdPartyAddress(
+        streetName="123 Main St",
+        cityName="New York", 
+        zipCode="10001"
+    ),
+    isActive=True
+)
+user = User.build_from_model(third_party_data)
+# User(first_name="John", last_name="Doe", email="john@example.com", 
+#      street="123 Main St", city="New York", zip_code="10001", is_active=True)
+```
+
+### Basic Structure Mapping
 
 ```python
 from pydantic import BaseModel, Field
@@ -70,6 +119,9 @@ summary = UserSummary.build_from_model(profile)
 Map deeply nested fields using dot notation:
 
 ```python
+from pydantic import Field
+from pymapme.models.mapping import MappingModel
+
 class OrderSummary(MappingModel):
     customer_name: str = Field(json_schema_extra={"source": "customer.profile.name"})
     payment_total: float = Field(json_schema_extra={"source": "payment.amount"})
@@ -80,6 +132,9 @@ class OrderSummary(MappingModel):
 Transform data using custom functions with access to the source model:
 
 ```python
+from pydantic import Field
+from pymapme.models.mapping import MappingModel
+
 class UserDisplay(MappingModel):
     full_name: str = Field(json_schema_extra={"source_func": "_build_full_name"})
     
@@ -92,6 +147,12 @@ class UserDisplay(MappingModel):
 Inject additional data during transformation:
 
 ```python
+from pydantic import BaseModel, Field
+from pymapme.models.mapping import MappingModel
+
+class User(BaseModel):
+    name: str
+
 class EnrichedUser(MappingModel):
     name: str = Field(json_schema_extra={"source": "name"})
     is_premium: bool = Field(json_schema_extra={"source_func": "_check_premium"})
@@ -110,6 +171,9 @@ enriched = EnrichedUser.build_from_model(user, context={"user_tier": "premium"})
 Fields without explicit mapping use the same field name from source:
 
 ```python
+from pydantic import Field
+from pymapme.models.mapping import MappingModel
+
 class SimpleMapping(MappingModel):
     # These map automatically by name
     name: str
